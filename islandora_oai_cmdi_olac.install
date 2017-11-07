@@ -1,0 +1,61 @@
+<?PHP
+
+/**
+ * @file
+ * Installs additional metadata prefixes for islandora_oai. Assuming that CMD(I) and OLAC metadata are present as datastreams.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function islandora_oai_cmdi_olac_install() {
+
+  db_insert('islandora_oai_metadata_formats')
+  ->fields(array(
+    'name' => 'cmd',
+    'metadata_prefix' => 'cmd',
+    'oai2_schema' => 'http://infra.clarin.eu/cmd/xsd/minimal-cmdi.xsd',
+    'metadata_namespace' => 'http://www.clarin.eu/cmd/',
+    'record_prefix' => 'cmd',
+    'record_namespace' => 'http://www.clarin.eu/cmd/',
+  ))
+  ->execute();
+
+  db_insert('islandora_oai_metadata_formats')
+    ->fields(array(
+      'name' => 'olac',
+      'metadata_prefix' => 'olac',
+      'oai2_schema' => 'http://www.language-archives.org/OLAC/1.1/olac.xsd',
+      'metadata_namespace' => 'http://www.language-archives.org/OLAC/1.1/',
+      'record_prefix' => 'olac',
+      'record_namespace' => 'http://www.language-archives.org/OLAC/1.1/',
+    ))
+    ->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function islandora_oai_cmdi_olac_uninstall() {
+
+  $metadata_formats = array();
+  $prefixes = array('cmd', 'olac');
+  foreach ($prefixes as $prefix) {
+    $metadata_formats[] = $prefix->metadata_prefix;
+  }
+  $variable_variables = array(
+    'islandora_oai_metadata_datastream_id_!format',
+    'islandora_oai_transform_file_!format',
+    'islandora_oai_self_transform_file_!format',
+    'islandora_oai_include_object_links_for_!format',
+    'islandora_oai_object_links_for_!format_xpath',
+    'islandora_oai_object_links_for_!format_field',
+    'islandora_oai_object_links_for_!format_record_namespace',
+  );
+  foreach ($metadata_formats as $metadata_prefix) {
+    foreach ($variable_variables as $var) {
+      $field = format_string($var, array('!format' => $metadata_prefix));
+      variable_del($field);
+    }
+  }
+}

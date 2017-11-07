@@ -1,0 +1,6 @@
+name = Islandora OAI CMDI and OLAC
+description = "Provides an Islandora OAI request handler for CMDI and OLAC metadata datastreams"
+package = Islandora Tools
+version = 7.x-dev
+core = 7.x
+dependencies[] = islandora_oai
